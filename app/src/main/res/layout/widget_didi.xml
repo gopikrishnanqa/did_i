@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@drawable/widget_background">
+
+    <TextView
+        android:id="@+id/widget_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Did I?"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="#20232D"
+        android:paddingBottom="8dp" />
+
+    <Button
+        android:id="@+id/widget_action_1"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginBottom="6dp"
+        android:background="@drawable/widget_button"
+        android:textAllCaps="false"
+        android:textColor="#20232D"
+        android:textSize="13sp"
+        android:text="Action" />
+
+    <Button
+        android:id="@+id/widget_action_2"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginBottom="6dp"
+        android:background="@drawable/widget_button"
+        android:textAllCaps="false"
+        android:textColor="#20232D"
+        android:textSize="13sp"
+        android:text="Action" />
+
+    <Button
+        android:id="@+id/widget_action_3"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginBottom="6dp"
+        android:background="@drawable/widget_button"
+        android:textAllCaps="false"
+        android:textColor="#20232D"
+        android:textSize="13sp"
+        android:text="Action" />
+
+    <Button
+        android:id="@+id/widget_add"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@drawable/widget_button"
+        android:textAllCaps="false"
+        android:textColor="#4657A9"
+        android:textSize="13sp"
+        android:text="+ Add" />
+</LinearLayout>

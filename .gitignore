@@ -1,0 +1,25 @@
+*.iml
+.gradle
+/.gradle-build/
+/local.properties
+/.idea
+.DS_Store
+/build/out/*
+!/build/out/.gitkeep
+/app/build
+/captures
+.cxx
+*.apk
+*.ap_
+*.aab
+.kotlin
+.tools/
+
+# Native signing / credentials
+*.jks
+keystore.properties
+credentials/keystore.properties
+credentials/*.jks
+*.p12
+*.key
+*.pem

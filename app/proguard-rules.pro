@@ -1,0 +1,3 @@
+-keep class com.druanlabs.didicheck.data.** { *; }
+-keep @androidx.room.Entity class *
+-keep class * extends androidx.room.RoomDatabase { *; }

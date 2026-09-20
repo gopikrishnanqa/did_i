@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Did I?</string>
+    <string name="tagline">Remember what you did. Check what you forgot.</string>
+    <string name="widget_description">Quickly mark pinned everyday actions</string>
+    <string name="checklist_widget_description">Show a Before I Go checklist on your home screen</string>
+    <string name="checklist_widget_loading">Loading checklist…</string>
+    <string name="checklist_widget_choose">Choose a checklist</string>
+    <string name="checklist_widget_not_found">List not found, tap to choose</string>
+</resources>
