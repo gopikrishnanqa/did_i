@@ -1,25 +1,70 @@
+# Android / Gradle
 *.iml
-.gradle
-/.gradle-build/
-/local.properties
-/.idea
-.DS_Store
+.gradle/
+.gradle-build/
+**/build/
+!/build/
+!/build/**
 /build/out/*
 !/build/out/.gitkeep
-/app/build
-/captures
-.cxx
+/local.properties
+.cxx/
+.externalNativeBuild/
+captures/
+.kotlin/
+.tools/
+
+# Built packages & native outputs
 *.apk
 *.ap_
 *.aab
-.kotlin
-.tools/
+*.aar
+*.dex
+*.so
+*.o
+*.class
 
-# Native signing / credentials
+# Mapping / R8 / ProGuard outputs (anywhere)
+*mapping.txt
+*-mapping.txt
+proguard/
+seeds.txt
+usage.txt
+resources.txt
+
+# IDE / editors
+.idea/
+.fleet/
+.vscode/
+*.swp
+*~
+*.bak
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs & dumps
+*.log
+*.hprof
+hs_err_pid*
+
+# Signing / secrets (never commit)
 *.jks
-keystore.properties
-credentials/keystore.properties
-credentials/*.jks
+*.keystore
 *.p12
 *.key
 *.pem
+keystore.properties
+credentials/keystore.properties
+credentials/*.jks
+credentials/*.keystore
+**/secrets/
+google-services.json
+
+# Optional local tooling
+node_modules/
+*.tmp
+tmp_*.py
+.cursor/
