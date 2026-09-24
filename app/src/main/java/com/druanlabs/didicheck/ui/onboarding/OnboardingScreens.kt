@@ -1,6 +1,7 @@
 package com.druanlabs.didicheck.ui.onboarding
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,7 +21,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -48,10 +48,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.annotation.DrawableRes
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.druanlabs.didicheck.data.model.ItemKind
@@ -61,6 +64,7 @@ import com.druanlabs.didicheck.ui.components.QuietCard
 import com.druanlabs.didicheck.ui.components.SecondaryAction
 import com.druanlabs.didicheck.ui.theme.BrandBlue
 import com.druanlabs.didicheck.ui.theme.BrandBlueSoft
+import com.druanlabs.didicheck.ui.theme.BrandBlueWash
 import com.druanlabs.didicheck.ui.theme.BrandGreen
 import com.druanlabs.didicheck.ui.theme.BrandGreenSoft
 
@@ -236,10 +240,10 @@ private fun SituationsStep(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            items(OnboardingCatalog.situations, key = { it.first.name }) { (situation, icon) ->
+            items(OnboardingCatalog.situations, key = { it.name }) { situation ->
                 SelectCard(
                     label = situation.title,
-                    icon = icon,
+                    iconRes = situation.iconRes,
                     selected = situation in state.situations,
                     onClick = { onToggle(situation) },
                 )
@@ -277,7 +281,7 @@ private fun ItemPickStep(
                 options.forEach { option ->
                     SelectRow(
                         label = option.label,
-                        icon = option.icon,
+                        iconRes = option.iconRes,
                         selected = option.label in selected,
                         onClick = { onToggle(option.label) },
                     )
@@ -285,7 +289,7 @@ private fun ItemPickStep(
                 selected.filter { label -> options.none { it.label == label } }.forEach { custom ->
                     SelectRow(
                         label = custom,
-                        icon = Icons.Outlined.Add,
+                        iconRes = null,
                         selected = true,
                         onClick = { onToggle(custom) },
                     )
@@ -303,7 +307,7 @@ private fun ItemPickStep(
                 items(options, key = { it.id }) { option ->
                     SelectCard(
                         label = option.label,
-                        icon = option.icon,
+                        iconRes = option.iconRes,
                         selected = option.label in selected,
                         onClick = { onToggle(option.label) },
                     )
@@ -312,7 +316,7 @@ private fun ItemPickStep(
                     item(key = "custom-$custom") {
                         SelectCard(
                             label = custom,
-                            icon = Icons.Outlined.Add,
+                            iconRes = null,
                             selected = true,
                             onClick = { onToggle(custom) },
                         )
@@ -364,7 +368,7 @@ private fun DidIStep(
             OnboardingCatalog.didIOptions.forEach { option ->
                 SelectRow(
                     label = option.label,
-                    icon = option.icon,
+                    iconRes = option.iconRes,
                     selected = option.label in state.didILabels,
                     onClick = { onToggleDidI(option.label) },
                 )
@@ -374,7 +378,7 @@ private fun DidIStep(
             }.forEach { custom ->
                 SelectRow(
                     label = custom,
-                    icon = Icons.Outlined.Add,
+                    iconRes = null,
                     selected = true,
                     onClick = { onToggleDidI(custom) },
                 )
@@ -389,7 +393,7 @@ private fun DidIStep(
                 OnboardingCatalog.duringDayQuickOptions.forEach { option ->
                     SelectRow(
                         label = option.label,
-                        icon = option.icon,
+                        iconRes = option.iconRes,
                         selected = option.label in state.duringDayLabels,
                         onClick = { onToggleDuringDay(option.label) },
                     )
@@ -736,7 +740,7 @@ private fun ProgressSegments(
 @Composable
 private fun SelectCard(
     label: String,
-    icon: ImageVector,
+    @DrawableRes iconRes: Int?,
     selected: Boolean,
     onClick: () -> Unit,
 ) {
@@ -744,9 +748,9 @@ private fun SelectCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(112.dp)
+            .height(120.dp)
             .clip(shape)
-            .background(MaterialTheme.colorScheme.surface)
+            .background(if (selected) BrandBlueWash else MaterialTheme.colorScheme.surface)
             .border(
                 width = if (selected) 2.dp else 1.dp,
                 color = if (selected) BrandBlue else MaterialTheme.colorScheme.outlineVariant,
@@ -759,8 +763,9 @@ private fun SelectCard(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top,
         ) {
-            Icon(icon, contentDescription = null, tint = if (selected) BrandBlue else MaterialTheme.colorScheme.onSurfaceVariant)
+            OnboardingIcon(iconRes = iconRes, size = 40.dp)
             SelectionMark(selected)
         }
         Text(label, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
@@ -770,7 +775,7 @@ private fun SelectCard(
 @Composable
 private fun SelectRow(
     label: String,
-    icon: ImageVector,
+    @DrawableRes iconRes: Int?,
     selected: Boolean,
     onClick: () -> Unit,
 ) {
@@ -779,17 +784,17 @@ private fun SelectRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(MaterialTheme.colorScheme.surface)
+            .background(if (selected) BrandBlueWash else MaterialTheme.colorScheme.surface)
             .border(
                 width = if (selected) 2.dp else 1.dp,
                 color = if (selected) BrandBlue else MaterialTheme.colorScheme.outlineVariant,
                 shape = shape,
             )
             .clickable(role = Role.Checkbox, onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 14.dp),
+            .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(icon, contentDescription = null, tint = if (selected) BrandBlue else MaterialTheme.colorScheme.onSurfaceVariant)
+        OnboardingIcon(iconRes = iconRes, size = 36.dp)
         Spacer(Modifier.width(12.dp))
         Text(label, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
         SelectionMark(selected)
@@ -797,12 +802,31 @@ private fun SelectRow(
 }
 
 @Composable
+private fun OnboardingIcon(@DrawableRes iconRes: Int?, size: androidx.compose.ui.unit.Dp) {
+    if (iconRes != null) {
+        Image(
+            painter = painterResource(iconRes),
+            contentDescription = null,
+            modifier = Modifier.size(size),
+            contentScale = ContentScale.Fit,
+        )
+    } else {
+        Icon(
+            imageVector = Icons.Outlined.Add,
+            contentDescription = null,
+            tint = BrandBlue,
+            modifier = Modifier.size(size * 0.7f),
+        )
+    }
+}
+
+@Composable
 private fun SelectionMark(selected: Boolean) {
     Box(
         modifier = Modifier
-            .size(22.dp)
-            .clip(RoundedCornerShape(6.dp))
-            .background(if (selected) BrandBlue else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+            .size(24.dp)
+            .clip(CircleShape)
+            .background(if (selected) BrandBlue else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f)),
         contentAlignment = Alignment.Center,
     ) {
         if (selected) {
