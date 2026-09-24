@@ -50,6 +50,7 @@ class MemoryRepository(
     val morningReminderEnabled: Flow<Boolean> = settings.morningReminderEnabled
     val eveningReminderEnabled: Flow<Boolean> = settings.eveningReminderEnabled
     val defaultRoutineId: Flow<String?> = settings.defaultRoutineId
+    val onboardingCompleted: Flow<Boolean> = settings.onboardingCompleted
 
     val routines: Flow<List<Routine>> = combine(
         routineDao.observeRoutines(),
@@ -78,7 +79,72 @@ class MemoryRepository(
         completionDao.observeRecent(limit).map { list -> list.map { it.toModel() } }
 
     init {
-        scope.launch { seedIfNeeded() }
+        scope.launch { migrateOnboardingFlagIfNeeded() }
+    }
+
+    /**
+     * Existing installs already have routines — treat onboarding as done.
+     * New installs stay incomplete until [applyOnboardingResult].
+     */
+    private suspend fun migrateOnboardingFlagIfNeeded() {
+        if (settings.onboardingCompleted.first()) return
+        if (routineDao.count() > 0) {
+            settings.setOnboardingCompleted(true)
+        }
+    }
+
+    suspend fun needsOnboarding(): Boolean {
+        if (settings.onboardingCompleted.first()) return false
+        return routineDao.count() == 0
+    }
+
+    suspend fun setOnboardingCompleted(completed: Boolean) {
+        settings.setOnboardingCompleted(completed)
+    }
+
+    /**
+     * Persists personalized routines + quick actions from onboarding, then marks complete.
+     * Falls back to a minimal Leaving Home routine if [routines] is empty.
+     */
+    suspend fun applyOnboardingResult(
+        routines: List<Routine>,
+        quickActionLabels: List<String>,
+    ) {
+        val toSave = routines.ifEmpty {
+            listOf(minimalLeavingHomeRoutine())
+        }.take(3)
+        toSave.forEachIndexed { index, routine ->
+            saveRoutine(routine.copy(sortOrder = index))
+        }
+        quickActionLabels
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .distinctBy { it.lowercase() }
+            .forEachIndexed { index, label ->
+                saveQuickAction(label = label, pinned = index < 3)
+            }
+        toSave.firstOrNull()?.let { setDefaultRoutineId(it.id) }
+        settings.setOnboardingCompleted(true)
+    }
+
+    private fun minimalLeavingHomeRoutine(): Routine {
+        val seed = SeedData.routines.first()
+        val id = newId()
+        return Routine(
+            id = id,
+            name = seed.name,
+            sortOrder = 0,
+            lastCompletedAt = null,
+            items = seed.items.mapIndexed { index, item ->
+                RoutineItem(
+                    id = newId(),
+                    routineId = id,
+                    label = item.label,
+                    kind = item.kind,
+                    sortOrder = index,
+                )
+            },
+        )
     }
 
     suspend fun getRoutine(id: String): Routine? {
@@ -460,42 +526,6 @@ class MemoryRepository(
                 it.actionLabel.equals(label, ignoreCase = true) &&
                     it.timestamp in start..nowMillis
             }
-    }
-
-    private suspend fun seedIfNeeded() {
-        if (routineDao.count() == 0) {
-            SeedData.routines.forEachIndexed { index, seed ->
-                val id = newId()
-                routineDao.saveRoutine(
-                    RoutineEntity(id, seed.name, index, null),
-                    seed.items.mapIndexed { itemIndex, item ->
-                        RoutineItemEntity(
-                            id = newId(),
-                            routineId = id,
-                            label = item.label,
-                            kind = item.kind.name,
-                            sortOrder = itemIndex,
-                        )
-                    },
-                )
-            }
-        }
-        if (actionDao.count() == 0) {
-            val now = System.currentTimeMillis()
-            SeedData.actions.forEachIndexed { index, label ->
-                actionDao.upsert(
-                    QuickActionEntity(
-                        id = newId(),
-                        label = label,
-                        lastUsedAt = 0L,
-                        useCount = 0,
-                        createdAt = now,
-                        pinned = index < 3,
-                        pinOrder = if (index < 3) index else 0,
-                    )
-                )
-            }
-        }
     }
 }
 

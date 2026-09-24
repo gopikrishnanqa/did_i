@@ -15,6 +15,7 @@ class SettingsStore(private val context: Context) {
     private val morningKey = booleanPreferencesKey("gentle_morning_enabled")
     private val eveningKey = booleanPreferencesKey("gentle_evening_enabled")
     private val defaultRoutineKey = stringPreferencesKey("default_routine_id")
+    private val onboardingCompletedKey = booleanPreferencesKey("onboarding_completed")
 
     val notificationsEnabled: Flow<Boolean> =
         context.dataStore.data.map { it[notificationsKey] ?: false }
@@ -31,6 +32,9 @@ class SettingsStore(private val context: Context) {
 
     val defaultRoutineId: Flow<String?> =
         context.dataStore.data.map { it[defaultRoutineKey] }
+
+    val onboardingCompleted: Flow<Boolean> =
+        context.dataStore.data.map { it[onboardingCompletedKey] ?: false }
 
     suspend fun setNotificationsEnabled(enabled: Boolean) {
         context.dataStore.edit {
@@ -62,5 +66,9 @@ class SettingsStore(private val context: Context) {
                 prefs[defaultRoutineKey] = id
             }
         }
+    }
+
+    suspend fun setOnboardingCompleted(completed: Boolean) {
+        context.dataStore.edit { it[onboardingCompletedKey] = completed }
     }
 }

@@ -1,6 +1,7 @@
 package com.druanlabs.didicheck.ui
 
 object Routes {
+    const val Onboarding = "onboarding"
     const val Home = "home"
     const val History = "history?openId={openId}"
     const val Settings = "settings"

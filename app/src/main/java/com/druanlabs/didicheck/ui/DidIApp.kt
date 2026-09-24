@@ -15,7 +15,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -34,6 +33,7 @@ import com.druanlabs.didicheck.ui.before.RoutinePickerRoute
 import com.druanlabs.didicheck.ui.didi.DidIDoItRoute
 import com.druanlabs.didicheck.ui.history.HistoryRoute
 import com.druanlabs.didicheck.ui.home.HomeRoute
+import com.druanlabs.didicheck.ui.onboarding.OnboardingRoute
 import com.druanlabs.didicheck.ui.settings.EditRoutineRoute
 import com.druanlabs.didicheck.ui.settings.ManageActionsRoute
 import com.druanlabs.didicheck.ui.settings.ManageRoutinesRoute
@@ -57,14 +57,6 @@ fun DidIApp(startDestination: String = Routes.Home) {
     val showTabs = currentRoute == Routes.Home ||
         currentRoute?.startsWith("history") == true ||
         currentRoute == Routes.Settings
-
-    LaunchedEffect(startDestination) {
-        if (startDestination != Routes.Home) {
-            navController.navigate(startDestination) {
-                launchSingleTop = true
-            }
-        }
-    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -113,9 +105,19 @@ fun DidIApp(startDestination: String = Routes.Home) {
     ) { padding ->
         NavHost(
             navController = navController,
-            startDestination = Routes.Home,
+            startDestination = startDestination,
             modifier = Modifier.padding(padding),
         ) {
+            composable(Routes.Onboarding) {
+                OnboardingRoute(
+                    onFinished = {
+                        navController.navigate(Routes.Home) {
+                            popUpTo(Routes.Onboarding) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
+                )
+            }
             composable(Routes.Home) {
                 HomeRoute(
                     onStartCheck = { id -> navController.navigate(Routes.checklist(id)) },
